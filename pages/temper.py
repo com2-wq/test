@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-import plotly.graph_objects as ob
+import plotly.graph_objects as go
 
 # 1. 페이지 설정
 st.set_page_config(page_title="서울 기후 변화 대시보드", layout="wide")
@@ -69,14 +69,15 @@ st.markdown("---")
 st.subheader("🌡️ 연도별 연평균 기온 변화 추이")
 annual_mean = filtered_df.groupby('연도')['평균기온(℃)'].mean().reset_index()
 
+# [수정된 부분] px.line 함수 내부에 trendline="ols" 추가하여 추세선 생성
 fig_trend = px.line(
     annual_mean, x='연도', y='평균기온(℃)',
     title="연도별 평균 기온 추세선 (지구온난화 경향성 확인)",
     labels={'평균기온(℃)': '연평균 기온 (℃)'},
-    template="plotly_dark"
+    template="plotly_dark",
+    trendline="ols"  # 최소제곱법(OLS) 회귀 추세선을 자동으로 그려줍니다.
 )
-# 추세선(경향선) 추가
-fig_trend.add_trending_line = True 
+
 st.plotly_chart(fig_trend, use_container_width=True)
 
 # 6. 시각화 그래프 2: 역대 가장 무더웠던 날 TOP 10 / 가장 추웠던 날 TOP 10
