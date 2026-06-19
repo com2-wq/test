@@ -1,5 +1,7 @@
 import streamlit as str
 
+import streamlit as str
+
 # 1. 페이지 기본 설정 (가장 상단에 위치해야 합니다)
 str.set_page_config(
     page_title="미래를 여는 MBTI 진로 나침반",
