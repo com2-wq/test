@@ -1,150 +1,132 @@
-import streamlit as str
+import streamlit as st
+import random
+import time
 
-# 1. 페이지 기본 설정 (가장 상단에 위치해야 합니다)
-str.set_page_config(
-    page_title="미래를 여는 MBTI 진로 나침반",
-    page_icon="🚀",
+# 1. 페이지 설정 (이모지 타이틀)
+st.set_page_config(
+    page_title="2026 월드컵 우승 예측기 ⚽",
+    page_icon="🏆",
     layout="centered"
 )
 
-# 2. MBTI별 직업 및 특징 데이터 정의
-mbti_jobs = {
-    "ISTJ": {
-        "title": "내면의 성실한 관리자 📜",
-        "desc": "신중하고 책임감이 강하며, 집중력이 높고 현실 감각이 뛰어납니다.",
-        "jobs": ["경찰관 👮", "회계사 📊", "컴퓨터 프로그래머 💻", "사서 📚", "외과의사 🩺"]
-    },
-    "ISFJ": {
-        "title": "따뜻한 수호자 🌸",
-        "desc": "차분하고 동정심이 많으며, 타인을 배려하고 의무를 다하는 성격입니다.",
-        "jobs": ["간호사 🧑‍⚕️", "초등교사 🧑‍🏫", "사회복지사 🤝", "인사담당자 👥", "플로리스트 💐"]
-    },
-    "INFJ": {
-        "title": "통찰력 있는 선지자 🔮",
-        "desc": "강한 통찰력과 직관력을 가지고 있으며, 사람들에게 영감을 주는 것을 좋아합니다.",
-        "jobs": ["심리상담가 🧠", "작가 ✍️", "환경운동가 🌱", "교사 🏫", "미술치료사 🎨"]
-    },
-    "INTJ": {
-        "title": "전략적인 전략가 🎯",
-        "desc": "논리적이고 분석적이며, 문제 해결 능력이 탁월하고 비전을 제시합니다.",
-        "jobs": ["데이터 과학자 📈", "경영 컨설턴트 👔", "인공지능 연구원 🤖", "투자 분석가 💵", "건축가 📐"]
-    },
-    "ISTP": {
-        "title": "만능 재주꾼 🛠️",
-        "desc": "상황에 적응을 잘하고 냉철한 이성을 가졌으며, 도구를 다루는 데 능숙합니다.",
-        "jobs": ["엔지니어 ⚙️", "파일럿 ✈️", "소방관 🚒", "영상 편집자 🎬", "소프트웨어 개발자 🖥️"]
-    },
-    "ISFP": {
-        "title": "호기심 많은 예술가 🎨",
-        "desc": "온화하고 겸손하며, 미적 감각이 뛰어나고 현재의 삶을 즐길 줄 압니다.",
-        "jobs": ["디자이너 ✏️", "작곡가 🎵", "파티시에 🍰", "수의사 🐶", "사진작가 📷"]
-    },
-    "INFP": {
-        "title": "열정적인 중재자 🦄",
-        "desc": "이상주의적이며, 자신만의 가치관이 뚜렷하고 예술적 감수성이 풍부합니다.",
-        "jobs": ["소설가 📚", "일러스트레이터 🖌️", "언어치료사 🗣️", "인권운동가 🕊️", "영화감독 🎬"]
-    },
-    "INTP": {
-        "title": "논리적인 사색가 💡",
-        "desc": "호기심이 많고 분석적이며, 새로운 아이디어와 지적 탐구를 즐깁니다.",
-        "jobs": ["연구원 🔬", "대학교수 🎓", "웹 개발자 💻", "경제학자 📊", "전략 기획자 📝"]
-    },
-    "ESTP": {
-        "title": "모험을 즐기는 사업가 ⚡",
-        "desc": "활동적이고 직설적이며, 현실적인 문제를 해결하는 능력이 뛰어납니다.",
-        "jobs": ["기업가 💼", "스포츠 마케터 ⚽", "경찰관 👮", "소방관 🚒", "자산관리사 💰"]
-    },
-    "ESFP": {
-        "title": "자유로운 영혼의 연예인 🎉",
-        "desc": "사교적이고 낙천적이며, 주변 사람들을 즐겁게 만드는 에너지가 있습니다.",
-        "jobs": ["연예인/배우 🎭", "이벤트 플래너 🎈", "여행 가이드 🗺️", "승무원 ✈️", "유튜버 🎥"]
-    },
-    "ENFP": {
-        "title": "재기발랄한 활동가 🌟",
-        "desc": "상상력이 풍부하고 활발하며, 사람들과 소통하는 것을 진심으로 좋아합니다.",
-        "jobs": ["마케터 📢", "홍보 전문가 🎤", "콘텐츠 크리에이터 📱", "상담가 💬", "카피라이터 ✒️"]
-    },
-    "ENTP": {
-        "title": "뜨거운 논쟁을 즐기는 변론가 🗣️",
-        "desc": "독창적이고 창의적이며, 복잡한 문제를 해결하고 도전하는 것을 즐깁니다.",
-        "jobs": ["벤처 사업가 🚀", "변호사 ⚖️", "정치인 🏛️", "상품 기획자(PM) 📦", "빅데이터 분석가 📊"]
-    },
-    "ESTJ": {
-        "title": "엄격한 관리자 👔",
-        "desc": "조직적이고 실용적이며, 계획을 세우고 사람들을 이끄는 능력이 뛰어납니다.",
-        "jobs": ["프로젝트 매니저 📋", "군인/장교 🎖️", "재무 이사 💵", "학교 교장 🏫", "법조인 ⚖️"]
-    },
-    "ESFJ": {
-        "title": "사교적인 외교관 🤝",
-        "desc": "친절하고 동정심이 많으며, 타인을 돕고 협력하는 환경에서 빛을 발합니다.",
-        "jobs": ["호텔리어 🏨", "승무원 🛫", "초등교사 🧑‍🏫", "홍보담당자 📣", "고객 서비스 매니저 ☎️"]
-    },
-    "ENFJ": {
-        "title": "정의로운 사회운동가 🌍",
-        "desc": "지도력이 있고 따뜻하며, 타인의 성장을 돕고 이끄는 데 보람을 느낍니다.",
-        "jobs": ["교사/강사 🧑‍🏫", "시민단체 활동가 🕊️", "인사총괄 👥", "외교관 🏛️", "성직자 ⛪"]
-    },
-    "ENTJ": {
-        "title": "대담한 통솔자 👑",
-        "desc": "철저하고 단호하며, 장기적인 비전을 가지고 조직을 이끄는 리더 타입입니다.",
-        "jobs": ["CEO/경영자 💼", "벤처 캐피탈리스트 💰", "정치인 🏛️", "경영 컨설턴트 📊", "변호사 ⚖️"]
-    }
+# 2. 2026 월드컵 실제 조 편성 데이터
+GROUPS = {
+    "Group A 🇲🇽🇿🇦🇰🇷🇨🇿": ["멕시코 🇲🇽", "남아공 🇿🇦", "대한민국 🇰🇷", "체코 🇨🇿"],
+    "Group B 🇨🇦🇨🇭🇶🇦🇧🇦": ["캐나다 🇨🇦", "스위스 🇨🇭", "카타르 🇶🇦", "보스니아 🇧🇦"],
+    "Group C 🇧🇷🇲🇦🇭🇹🇸🇨": ["브라질 🇧🇷", "모로코 🇲🇦", "아이티 🇭🇹", "스코틀랜드 🏴󠁧󠁢󠁳󠁣󠁴󠁿"],
+    "Group D 🇺🇸🇵🇾🇦🇺🇹🇷": ["미국 🇺🇸", "파라과이 🇵🇾", "호주 🇦🇺", "튀르키예 🇹🇷"],
+    "Group E 🇩🇪🇨🇼🇨🇮🇪🇨": ["독일 🇩🇪", "퀴라소 🇨🇼", "코트디부아르 🇨🇮", "에콰도르 🇪🇨"],
+    "Group F 🇳🇱🇯🇵🇹🇳🇸🇪": ["네덜란드 🇳🇱", "일본 🇯🇵", "튀니지 🇹🇳", "스웨덴 🇸🇪"],
+    "Group G 🇧🇪🇪🇬🇮🇷🇳🇿": ["벨기에 🇧🇪", "이집트 🇪🇬", "이란 🇮🇷", "뉴질랜드 🇳🇿"],
+    "Group H 🇪🇸🇨🇻🇸🇦🇺🇾": ["스페인 🇪🇸", "카보베르데 🇨🇻", "사우디아라비아 🇸🇦", "우루과이 🇺🇾"],
+    "Group I 🇫🇷🇸🇳🇮🇶🇳🇴": ["프랑스 🇫🇷", "세네갈 🇸🇳", "이라크 🇮🇶", "노르웨이 🇳🇴"],
+    "Group J 🇦🇷🇩🇿🇦🇹🇯🇴": ["아르헨티나 🇦🇷", "알제리 🇩🇿", "오스트리아 🇦🇹", "요르단 🇯🇴"],
+    "Group K 🇵🇹🇺🇿🇨🇴🇨🇩": ["포르투갈 🇵🇹", "우즈베키스탄 🇺🇿", "콜롬비아 🇨🇴", "콩고민주공화국 🇨🇩"],
+    "Group L 🏴󠁧󠁢󠁥󠁮󠁧󠁿🇭🇷🇬🇭🇵🇦": ["잉글랜드 🏴󠁧󠁢󠁥󠁮󠁧󠁿", "크로아티아 🇭🇷", "가나 🇬🇭", "파나마 🇵🇦"]
 }
 
-# 3. 앱 화면 구성
-str.title("🚀 내 미래를 밝혀줄 MBTI 진로 나침반")
-str.subheader("나의 MBTI를 선택하고 딱 맞는 멋진 직업을 찾아보세요! ✨")
+# 모든 팀 리스트업
+ALL_TEAMS = []
+for teams in GROUPS.values():
+    ALL_TEAMS.extend(teams)
+ALL_TEAMS = sorted(ALL_TEAMS)
 
-str.write("---")
+# 3. 헤더 및 인트로
+st.title("🏆 2026 FIFA 월드컵 우승 예측 ⚽")
+st.markdown("""
+    올해 펼쳐지는 **북중미 월드컵(미국·유산·멕시코 공동 개최)**의 승자는 과연 누가 될까요?  
+    시뮬레이터를 통해 가상 매치와 최종 우승국을 예측해 보세요! ✨
+""")
+st.write("---")
 
-# 사용자 입력 받기 (셀렉트 박스)
-mbti_list = sorted(list(mbti_jobs.keys()))
-selected_mbti = str.selectbox(
-    "🔍 자신의 MBTI 4자리를 선택해 주세요:",
-    mbti_list,
-    index=None,
-    placeholder="여기를 눌러 선택하세요 👇"
-)
+# 4. 기능 1: 개별 매치 스코어 예측
+st.header("🥊 1:1 빅매치 결과 예측")
+st.subheader("원하는 두 팀을 골라 경기 결과를 시뮬레이션해 보세요!")
 
-str.write("")
+col1, col2 = st.columns(2)
+with col1:
+    team_a = st.selectbox("🏠 홈 팀 선택", ALL_TEAMS, index=ALL_TEAMS.index("대한민국 🇰🇷"))
+with col2:
+    team_b = st.selectbox("✈️ 원정 팀 선택", ALL_TEAMS, index=ALL_TEAMS.index("브라질 🇧🇷"))
 
-# 결과 출력 부분
-if selected_mbti:
-    info = mbti_jobs[selected_mbti]
-    
-    # 🌈 화려한 디자인의 결과 박스 생성
-    str.success(f"### 🎉 {selected_mbti}의 결과: {info['title']}")
-    
-    # 성격 특징 요약
-    str.markdown(f"**💡 어떤 성격인가요?**")
-    str.info(info['desc'])
-    
-    str.write("")
-    
-    # 추천 직업 리스트 출력
-    str.markdown(f"**🛠️ 추천하는 어울리는 직업 리스트:**")
-    
-    # 이모지와 함께 카드 형태로 가독성 좋게 출력
-    cols = str.columns(len(info['jobs']))
-    for idx, job in enumerate(info['jobs']):
-        with cols[idx]:
-            str.markdown(f"""
-            <div style="
-                background-color: #f0f2f6; 
-                padding: 15px; 
-                border-radius: 10px; 
-                text-align: center;
-                font-weight: bold;
-                border: 1px solid #d1d5db;
-                margin-bottom: 10px;
-            ">
-                {job}
-            </div>
-            """, unsafe_allow_html=True)
+if st.button("🎲 매치 시뮬레이션 시작!", key="match_btn"):
+    if team_a == team_b:
+        st.warning("⚠️ 서로 다른 두 팀을 선택해 주세요!")
+    else:
+        with st.spinner("⏳ 심판이 휘슬을 불 준비를 하고 있습니다..."):
+            time.sleep(1.5)
             
-    str.write("---")
-    str.caption("💡 본 추천은 참고용입니다. 여러분의 가능성은 MBTI보다 훨씬 더 무궁무진해요! 화이팅! 💪")
+        # 스코어 랜덤 생성
+        score_a = random.randint(0, 4)
+        score_b = random.randint(0, 4)
+        
+        # 결과 연출
+        st.balloons()
+        st.success("✨ 경기 종료! 전광판을 확인하세요!")
+        
+        # 전광판 스타일링
+        st.markdown(f"""
+        <div style="background-color:#1e1e1e; padding:20px; border-radius:10px; text-align:center; color:white;">
+            <h2 style="margin:0; color:#ffcc00;">⚽ MATCH RESULT ⚽</h2>
+            <div style="display:flex; justify-content:space-around; align-items:center; margin-top:20px;">
+                <div><h3>{team_a}</h3></div>
+                <div><h1 style="font-size:50px; color:#00ffcc;">{score_a} : {score_b}</h1></div>
+                <div><h3>{team_b}</h3></div>
+            </div>
+        </div>
+        """, unsafe_html=True)
+        
+        # 위트 있는 멘트 추가
+        if score_a > score_b:
+            st.write(f"🎉 **{team_a}**이(가) 환상적인 경기력으로 **{team_b}**을 꺾고 승리했습니다! 🥳")
+        elif score_b > score_a:
+            st.write(f"🎉 **{team_b}**이(가) 극적인 골을 터트리며 **{team_a}**을 상대로 승리를 거둡니다! 🥳")
+        else:
+            st.write(f"🤝 두 팀은 치열한 공방전 끝에 **무승부**로 경기를 마쳤습니다! 연장전으로 갈까요? 🤔")
 
-else:
-    # 아무것도 선택하지 않았을 때 안내 메시지
-    str.warning("👉 위 상자에서 MBTI를 선택하면 추천 결과가 짠! 하고 나타나요.")
+st.write("---")
+
+# 5. 기능 2: 2026 월드컵 전체 우승팀 원클릭 예측
+st.header("🔮 슈퍼컴퓨터 우승국 원클릭 예측")
+st.write("48개 진출국 중에서 슈퍼컴퓨터 알고리즘(랜덤 피킹)이 최종 우승 확률이 가장 높은 나라를 찍어줍니다!")
+
+if st.button("👑 우승 트로피의 주인은? (클릭)", key="champion_btn"):
+    progress_bar = st.progress(0)
+    status_text = st.empty()
+    
+    # 분석하는 척하는 유쾌한 애니메이션 효과
+    phrases = ["📊 역대 월드컵 데이터 분석 중...", "🏃 선수들의 컨디션 체크 중...", "🌤️ 경기 당일 날씨 예측 중...", "🔮 미래 예측소 가동 중..."]
+    for percent_complete in range(100):
+        time.sleep(0.02)
+        progress_bar.progress(percent_complete + 1)
+        if percent_complete % 25 == 0:
+            status_text.text(phrases[percent_complete // 25])
+            
+    status_text.text("🎯 분석 완료!")
+    
+    # 우승국 추첨
+    champion = random.choice(ALL_TEAMS)
+    
+    # 축하 연출
+    st.snow()
+    
+    st.markdown(f"""
+    <div style="background-color:#0f2027; padding:30px; border-radius:15px; text-align:center; border: 3px solid #gold; color:white;">
+        <h1 style="font-size:40px; color:#ffd700;">🥇 2026 월드컵 우승국 예측 🥇</h1>
+        <br>
+        <h2 style="font-size:45px; color:#ffffff; background-color:#203a43; display:inline-block; padding:10px 30px; border-radius:10px;">
+            {champion}
+        </h2>
+        <p style="margin-top:20px; color:#a8ff78; font-size:18px;">✨ 축하합니다! 슈퍼컴퓨터가 예측한 우승의 주인공입니다! ✨</p>
+    </div>
+    """, unsafe_html=True)
+
+st.write("---")
+
+# 6. 사이드바 조 편성 안내
+st.sidebar.title("📅 2026 월드컵 공식 조 편성")
+st.sidebar.info("48개국이 12개 조로 나뉘어 치열한 예선을 펼칩니다.")
+for group_name, teams in GROUPS.items():
+    st.sidebar.markdown(f"**{group_name}**")
+    for t in teams:
+        st.sidebar.write(f"- {t}")
